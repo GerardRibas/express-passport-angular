@@ -1,46 +1,57 @@
-module.exports = function(app, passport) {
+module.exports = function(app, passport, jwt, moment, config, jwtauth) {
 
-	//Home Page:
-	app.get('/', function(req, res){
-		res.render('index.ejs');
+    app.get('/', function(req, res){
+        res.sendfile('./public/app/index.html');
+    });
+
+	app.post('/api/login', function(req, res, next) {
+		passport.authenticate('local-login', function(err, user, info) {
+        	if (err)
+        		return next(err)
+
+        	if (user) {
+                var expires = moment().add(30, 'minutes').valueOf();
+                var token = jwt.encode({
+                    iss: user._id,
+                    exp: expires
+                    }, config.secret);
+ 
+                res.json({
+                    token : token,
+                    expires: expires,
+                    user_id: user._id
+                });
+        	} else {
+                res.json(401, info);
+        	}
+    	})(req, res, next);
 	});
 
-	//Login Page:
-	app.get('/login', function(req,res){
-		res.render('login.ejs', {message : req.flash('loginMessage')});
-	});
-	app.post('/login', passport.authenticate('local-login', {
-		successRedirect : '/profile',
-		failureRedirect : '/login',
-		failureFlash : true
-	}));
+	app.post('/api/signup', function(req, res, next) {
+		passport.authenticate('local-signup', function(err, user, info) {
+        	if (err)
+        		return next(err)
 
-	//Signup:
-	app.get('/signup', function(req,res){
-		res.render('signup.ejs', {message : req.flash('signupMessage')});
-	});
-
-	app.post('/signup', passport.authenticate('local-signup', {
-		successRedirect : '/profile',
-		failureRedirect : '/signup',
-		failureFlash : true
-	}));
-
-	//Profile
-	app.get('/profile', isLoggedIn, function(req,res){
-		res.render('profile.ejs', {user: req.user});
+        	if (!user) {
+            	res.json(401, info);
+        	} else {
+                var expires = moment().add(30, 'minutes').valueOf();
+                var token = jwt.encode({
+                    iss: user._id,
+                    exp: expires
+                    }, config.secret);
+                
+                res.json({
+                    token : token,
+                    expires: expires,
+                    user_id: user._id
+                });
+        	}
+    	})(req, res, next);
 	});
 
-	//Logout:
-	app.get('/logout', function(req, res){
-		req.logout();
-		res.redirect('/');
-	});
+    app.get('/api/profile', [jwtauth], function(req, res) {
+        res.json(req.user);
+    });
+    
 };
-
-function isLoggedIn(req, res, next) {
-	if(req.isAuthenticated()){
-		return next();
-	}
-	res.redirect('/');
-}
