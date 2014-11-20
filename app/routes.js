@@ -1,10 +1,10 @@
 module.exports = function(app, passport, jwt, moment, config, jwtauth) {
 
-    app.get('/', function(req, res){
+    app.get('/oauth', function(req, res){
         res.sendfile('./public/app/index.html');
     });
 
-	app.post('/api/login', function(req, res, next) {
+	app.post('/oauth/api/login', function(req, res, next) {
 		passport.authenticate('local-login', function(err, user, info) {
         	if (err)
         		return next(err)
@@ -27,7 +27,7 @@ module.exports = function(app, passport, jwt, moment, config, jwtauth) {
     	})(req, res, next);
 	});
 
-	app.post('/api/signup', function(req, res, next) {
+	app.post('/oauth/api/signup', function(req, res, next) {
 		passport.authenticate('local-signup', function(err, user, info) {
         	if (err)
         		return next(err)
@@ -50,7 +50,7 @@ module.exports = function(app, passport, jwt, moment, config, jwtauth) {
     	})(req, res, next);
 	});
 
-    app.get('/api/profile', [jwtauth], function(req, res) {
+    app.get('/oauth/api/profile', [jwtauth], function(req, res) {
         res.json(req.user);
     });
     

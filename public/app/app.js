@@ -19,7 +19,7 @@ angular.module('nodeAuthentication.services', []).factory('AuthService', ['$http
 		var AuthService = {
 			login : function(email, password) {
 				var d = $q.defer();
-				$http.post('/api/login',{'email':email, 'password':password })
+				$http.post('/oauth/api/login',{'email':email, 'password':password })
 					.success(function(data,status,header,config) {
 						SessionService.setToken(data.token);
 						SessionService.setUserId(data.user_id);
@@ -33,7 +33,7 @@ angular.module('nodeAuthentication.services', []).factory('AuthService', ['$http
 			},
 			signup : function(email, password) {
 				var d = $q.defer();
-				$http.post('/api/signup',{'email':email, 'password':password })
+				$http.post('/oauth/api/signup',{'email':email, 'password':password })
 					.success(function(data,status,header,config) {
 						SessionService.setToken(data.token);
 						SessionService.setUserId(data.user_id);
@@ -47,7 +47,7 @@ angular.module('nodeAuthentication.services', []).factory('AuthService', ['$http
 			},
 			getUser : function(userId) {
 				var d = $q.defer();
-				$http.get('/api/profile')
+				$http.get('/oauth/api/profile')
 					.success(function(data,status,header,config) {
 						d.resolve(data);
 					}).error(function(data,status,header,config) {
