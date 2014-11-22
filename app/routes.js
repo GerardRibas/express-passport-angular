@@ -1,7 +1,7 @@
 module.exports = function(app, passport, jwt, moment, config, jwtauth) {
 
     app.get('/oauth', function(req, res){
-        res.sendfile('./public/app/index.html');
+        res.sendFile('./public/app/index.html');
     });
 
 	app.post('/oauth/api/login', function(req, res, next) {
